@@ -55,4 +55,17 @@ import org.springframework.stereotype.Service;
   throw new IllegalArgumentException("unknown coupon code: " + couponCode);
  }
 
+ public synchronized List<Order> findByStatus(OrderStatus status) {
+  if (status == null) {
+   throw new IllegalArgumentException("status required");
+  }
+  List<Order> result = new ArrayList<>();
+  for (Order o : orders.values()) {
+   if (o.status() == status) {
+    result.add(o);
+   }
+  }
+  return result;
+ }
+
 }
