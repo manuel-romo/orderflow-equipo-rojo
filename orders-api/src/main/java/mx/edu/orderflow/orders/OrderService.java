@@ -4,4 +4,24 @@ import org.springframework.stereotype.Service;
 @Service public class OrderService { private final Map<Long,Order> orders=new LinkedHashMap<>(); private final AtomicLong ids=new AtomicLong(1000);
  public synchronized Order create(String customerId, BigDecimal total){ if(customerId==null||customerId.isBlank()) throw new IllegalArgumentException("customerId required"); if(total==null||total.signum()<=0) throw new IllegalArgumentException("total must be positive"); long id=ids.incrementAndGet(); Order o=new Order(id,customerId,total,OrderStatus.CREATED); orders.put(id,o); return o;}
  public synchronized List<Order> list(){ return new ArrayList<>(orders.values()); }
- public synchronized Optional<Order> find(long id){ return Optional.ofNullable(orders.get(id)); } }
+ public synchronized Optional<Order> find(long id){ return Optional.ofNullable(orders.get(id)); }
+
+ private Order requireOrder(long id) {
+  Order o = orders.get(id);
+  if (o == null) {
+   throw new NoSuchElementException("order not found: " + id);
+  }
+  return o;
+ }
+
+ public synchronized Order cancel(long id) {
+  Order o = requireOrder(id);
+  if (o.status() == OrderStatus.CANCELLED) {
+   throw new IllegalStateException("order already cancelled");
+  }
+  Order cancelled = new Order(o.id(), o.customerId(), o.total(), OrderStatus.CANCELLED);
+  orders.put(id, cancelled);
+  return cancelled;
+ }
+
+}
