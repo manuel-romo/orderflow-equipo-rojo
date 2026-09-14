@@ -57,4 +57,18 @@ class OrderServiceTest { @Test void createsValidOrder(){var s=new OrderService()
         assertThrows(IllegalStateException.class, () -> s.applyDiscount(o.id(), "STUDENT10"));
     }
 
+    @Test void findByStatusReturnsMatchingOrders() {
+        var s = new OrderService();
+        var created = s.create("student-1", new BigDecimal("100.00"));
+        var cancelled = s.create("student-2", new BigDecimal("100.00"));
+        s.cancel(cancelled.id());
+        assertEquals(1, s.findByStatus(OrderStatus.CREATED).size());
+        assertEquals(1, s.findByStatus(OrderStatus.CANCELLED).size());
+    }
+
+    @Test void findByStatusThrowsWhenStatusNull() {
+        var s = new OrderService();
+        assertThrows(IllegalArgumentException.class, () -> s.findByStatus(null));
+    }
+
 }
