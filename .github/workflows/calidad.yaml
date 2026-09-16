@@ -45,3 +45,4 @@ jobs:
           -Dsonar.projectKey=manuel-romo_orderflow-equipo-rojo
           -Dsonar.organization=manuel-romo
           -Dsonar.qualitygate.wait=true
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
