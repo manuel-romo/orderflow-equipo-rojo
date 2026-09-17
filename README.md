@@ -59,6 +59,43 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/orders" -Method Post -ContentT
 curl http://localhost:8080/api/orders
 ```
 
+## Calidad de código
+
+El repositorio incluye un workflow versionado en [`.github/workflows/calidad.yaml`](.github/workflows/calidad.yaml) que compila, corre pruebas unitarias y envía el análisis a SonarQube Cloud.
+
+**Producto y proyecto:**
+- Producto: SonarQube Cloud.
+- Organización: `manuel-romo`
+- Project key: `manuel-romo_orderflow-equipo-rojo`
+- Perfil de calidad: *Sonar way* por defecto, con condición de cobertura mínima del 80% en código nuevo (*new code*).
+
+**Cuándo se dispara:**
+- Cada `push` a `main`.
+- Cada `pull_request` (`opened`, `synchronize`, `reopened`) dirigido a `main`.
+
+**Secrets requeridos:**
+
+| Secret         | Para qué se usa                                       | Quién lo genera                                                       |
+|----------------|-------------------------------------------------------|-----------------------------------------------------------------------|
+| `SONAR_TOKEN`  | Autenticar el scanner de Maven en SonarQube Cloud.    | Se genera en SonarQube Cloud y se guarda como secret del repositorio. |
+| `GITHUB_TOKEN` | Permite al workflow interactuar con el repositorio de GitHub en cada ejecución. | No requiere configuración manual.                                     |
+
+
+**Ejecutar el análisis localmente**:
+
+```bash
+export SONAR_TOKEN=<token-personal>
+mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+  -Dsonar.projectKey=manuel-romo_orderflow-equipo-rojo \
+  -Dsonar.organization=manuel-romo \
+  -Dsonar.qualitygate.wait=true \
+  -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+```
+
+En Windows/PowerShell reemplazar la primera línea por: `$env:SONAR_TOKEN = "<token-personal>"`.
+
+El comando falla, con`BUILD FAILURE`, si el Quality Gate no pasa, debido a `-Dsonar.qualitygate.wait=true`; es útil para que el criterio de calidad se pueda verificar antes de abrir el Pull Request.
+
 ## Evidencia acumulativa
 
 No sobrescriban evidencias anteriores. Cada Sprint conserva su propio archivo:
