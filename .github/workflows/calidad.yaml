@@ -9,9 +9,12 @@ on:
       - main
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-analyze:
-    name: Build, tests y análisis SonarQube Cloud
+    name: Compilación, Pruebas Unitarias y Análisis SonarQube Cloud
 
     runs-on: ubuntu-latest
 
