@@ -56,37 +56,6 @@ class OrderServiceTest {
     }
 
     @Test
-    void appliesStudent10Discount() {
-        var s = new OrderService();
-        var o = s.create("student-1", new BigDecimal("100.00"));
-        var updated = s.applyDiscount(o.id(), "STUDENT10");
-        assertEquals(0, updated.total().compareTo(new BigDecimal("90.00")));
-    }
-
-    @Test
-    void appliesStudent30DiscountWhenMinimumMet() {
-        var s = new OrderService();
-        var o = s.create("student-1", new BigDecimal("60.00"));
-        var updated = s.applyDiscount(o.id(), "STUDENT30");
-        assertEquals(0, updated.total().compareTo(new BigDecimal("42.00")));
-    }
-
-    @Test
-    void rejectsStudent30BelowMinimumTotal() {
-        var s = new OrderService();
-        var o = s.create("student-1", new BigDecimal("30.00"));
-        assertThrows(IllegalArgumentException.class, () -> s.applyDiscount(o.id(), "STUDENT30"));
-    }
-
-    @Test
-    void rejectsUnknownOrBlankCoupon() {
-        var s = new OrderService();
-        var o = s.create("student-1", new BigDecimal("100.00"));
-        assertThrows(IllegalArgumentException.class, () -> s.applyDiscount(o.id(), "BOGUS"));
-        assertThrows(IllegalArgumentException.class, () -> s.applyDiscount(o.id(), "  "));
-    }
-
-    @Test
     void discountThrowsWhenOrderNotCreated() {
         // Arrange
         var s = new OrderService();
@@ -119,4 +88,69 @@ class OrderServiceTest {
         assertThrows(IllegalArgumentException.class, () -> s.findByStatus(null));
     }
 
+    @ParameterizedTest(name = "{0} sobre {1} -> {2}")
+    @CsvSource({
+            "STUDENT10, 70.00, 63.00",
+            "STUDENT30, 70.00, 49.00",
+            "SENIOR50,  70.00, 35.00"
+    })
+    void appliesDiscount(String couponCode, BigDecimal total, BigDecimal expectedTotal) {
+        // Arrange
+        var service = new OrderService();
+        var order = service.create("c-1", total);
+        // Act
+        var updated = service.applyDiscount(order.id(), couponCode);
+        // Assert
+        assertEquals(0, updated.total().compareTo(expectedTotal));
+    }
+
+    @ParameterizedTest(name = "STUDENT30 sobre {0} -> {1}")
+    @CsvSource({
+            "50.00, 35.00",
+            "50.01, 35.007",
+            "51.00, 35.70",
+            "60.00, 42.00"
+    })
+    void appliesStudent30DiscountAtOrAboveMinimum(BigDecimal total, BigDecimal expectedTotal) {
+        // Arrange
+        var service = new OrderService();
+        var order = service.create("student-1", total);
+        // Act
+        var updated = service.applyDiscount(order.id(), "STUDENT30");
+        // Assert
+        assertEquals(0, updated.total().compareTo(expectedTotal));
+    }
+
+    @ParameterizedTest(name = "STUDENT30 rechaza total {0}")
+    @ValueSource(strings = {"0.01", "30.00", "49.99"})
+    void rejectsStudent30BelowMinimumTotal(BigDecimal total) {
+        // Arrange
+        var service = new OrderService();
+        var order = service.create("student-1", total);
+        // Act y Assert
+        assertThrows(IllegalArgumentException.class, () -> service.applyDiscount(order.id(), "STUDENT30"));
+    }
+
+    @ParameterizedTest(name = "cupón [{0}] se normaliza")
+    @ValueSource(strings = {"STUDENT10", "student10", "  Student10  "})
+    void normalizesCouponCode(String couponCode) {
+        // Arrange
+        var service = new OrderService();
+        var order = service.create("student-1", new BigDecimal("100.00"));
+        // Act
+        var updated = service.applyDiscount(order.id(), couponCode);
+        // Assert
+        assertEquals(0, updated.total().compareTo(new BigDecimal("90.00")));
+    }
+
+    @ParameterizedTest(name = "rechaza cupón [{0}]")
+    @NullAndEmptySource
+    @ValueSource(strings = {"  ", "BOGUS", "STUDENT"})
+    void rejectsInvalidCoupon(String couponCode) {
+        // Arrange
+        var service = new OrderService();
+        var order = service.create("student-1", new BigDecimal("100.00"));
+        // Act y Assert
+        assertThrows(IllegalArgumentException.class, () -> service.applyDiscount(order.id(), couponCode));
+    }
 }

@@ -73,6 +73,9 @@ public class OrderService {
             }
             return new BigDecimal("0.30");
         }
+        if (code.equals("SENIOR50")) {
+            return new BigDecimal("0.50");
+        }
         throw new IllegalArgumentException("unknown coupon code: " + couponCode);
     }
 
