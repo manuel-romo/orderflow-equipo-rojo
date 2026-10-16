@@ -10,8 +10,11 @@ import org.junit.jupiter.api.Test;
 class OrderServiceTest {
     @Test
     void createsValidOrder() {
+        // Arrange
         var s = new OrderService();
+        // Act
         var o = s.create("student-1", new BigDecimal("150.00"));
+        // Assert
         assertEquals(OrderStatus.CREATED, o.status());
         assertEquals("student-1", o.customerId());
     }
@@ -25,22 +28,30 @@ class OrderServiceTest {
 
     @Test
     void cancelsOrder() {
+        // Arrange
         var s = new OrderService();
         var o = s.create("student-1", new BigDecimal("100.00"));
-        assertEquals(OrderStatus.CANCELLED, s.cancel(o.id()).status());
+        // Act
+        var canceledO = s.cancel(o.id());
+        // Assert
+        assertEquals(OrderStatus.CANCELLED, canceledO.status());
     }
 
     @Test
     void cancelThrowsWhenAlreadyCancelled() {
+        // Arrange
         var s = new OrderService();
         var o = s.create("student-1", new BigDecimal("100.00"));
         s.cancel(o.id());
+        // Act y Assert
         assertThrows(IllegalStateException.class, () -> s.cancel(o.id()));
     }
 
     @Test
     void cancelThrowsWhenOrderNotFound() {
+        // Arrange
         var s = new OrderService();
+        // Act y Assert
         assertThrows(NoSuchElementException.class, () -> s.cancel(999L));
     }
 
@@ -77,25 +88,34 @@ class OrderServiceTest {
 
     @Test
     void discountThrowsWhenOrderNotCreated() {
+        // Arrange
         var s = new OrderService();
         var o = s.create("student-1", new BigDecimal("100.00"));
         s.cancel(o.id());
+        // Act y Assert
         assertThrows(IllegalStateException.class, () -> s.applyDiscount(o.id(), "STUDENT10"));
     }
 
     @Test
     void findByStatusReturnsMatchingOrders() {
+        // Arrange
         var s = new OrderService();
-        var created = s.create("student-1", new BigDecimal("100.00"));
+        s.create("student-1", new BigDecimal("100.00"));
         var cancelled = s.create("student-2", new BigDecimal("100.00"));
         s.cancel(cancelled.id());
-        assertEquals(1, s.findByStatus(OrderStatus.CREATED).size());
-        assertEquals(1, s.findByStatus(OrderStatus.CANCELLED).size());
+        // Act
+        var createdOrders = s.findByStatus(OrderStatus.CREATED);
+        var cancelledOrders = s.findByStatus(OrderStatus.CANCELLED);
+        // Assert
+        assertEquals(1, createdOrders.size());
+        assertEquals(1, cancelledOrders.size());
     }
 
     @Test
     void findByStatusThrowsWhenStatusNull() {
+        // Arrange
         var s = new OrderService();
+        // Act y Assert
         assertThrows(IllegalArgumentException.class, () -> s.findByStatus(null));
     }
 
