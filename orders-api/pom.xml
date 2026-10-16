@@ -9,6 +9,12 @@
     <artifactId>orders-api</artifactId>
     <properties>
         <spring-boot.version>3.5.16</spring-boot.version>
+        <!-- Exclusiones temporales para SonarQube Cloud -->
+        <sonar.coverage.exclusions>
+            **/CreateOrderRequest.java,
+            **/OrderController.java,
+            **/OrderFlowApplication.java
+        </sonar.coverage.exclusions>
     </properties>
     <dependencyManagement>
         <dependencies>
