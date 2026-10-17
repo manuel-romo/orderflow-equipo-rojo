@@ -186,4 +186,72 @@ class OrderServiceTest {
         assertEquals(1001L, first.id());
         assertEquals(1002L, second.id());
     }
+    
+    @Test
+void findReturnsOrderWhenExists() {
+    // Arrange
+    var service = new OrderService();
+    var created = service.create("student-1", new BigDecimal("100.00"));
+    // Act
+    var found = service.find(created.id());
+    // Assert
+    assertTrue(found.isPresent());
+    assertEquals("student-1", found.get().customerId());
+}
+
+@Test
+void findReturnsEmptyWhenMissing() {
+    // Arrange
+    var service = new OrderService();
+    // Act
+    var found = service.find(999L);
+    // Assert
+    assertTrue(found.isEmpty());
+}
+
+@Test
+void listReturnsDefensiveCopy() {
+    // Arrange
+    var service = new OrderService();
+    service.create("student-1", new BigDecimal("100.00"));
+    var orders = service.list();
+    // Act
+    orders.clear();
+    // Assert
+    assertEquals(1, service.list().size());
+}
+
+@Test
+void cancelPersistsCancelledOrderKeepingData() {
+    // Arrange
+    var service = new OrderService();
+    var order = service.create("student-1", new BigDecimal("100.00"));
+    // Act
+    service.cancel(order.id());
+    var stored = service.find(order.id()).orElseThrow();
+    // Assert
+    assertEquals(OrderStatus.CANCELLED, stored.status());
+    assertEquals(order.customerId(), stored.customerId());
+    assertEquals(order.total(), stored.total());
+}
+
+@Test
+void discountThrowsWhenOrderNotFound() {
+    // Arrange
+    var service = new OrderService();
+    // Act y Assert
+    var ex = assertThrows(NoSuchElementException.class, () -> service.applyDiscount(999L, "STUDENT10"));
+    assertTrue(ex.getMessage().contains("999"));
+}
+
+@Test
+void findByStatusReturnsEmptyWhenNoOrderMatches() {
+    // Arrange
+    var service = new OrderService();
+    service.create("student-1", new BigDecimal("100.00"));
+    // Act
+    var cancelled = service.findByStatus(OrderStatus.CANCELLED);
+    // Assert
+    assertTrue(cancelled.isEmpty());
+}
 }
