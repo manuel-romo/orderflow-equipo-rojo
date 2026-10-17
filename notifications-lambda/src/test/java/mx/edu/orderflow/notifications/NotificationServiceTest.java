@@ -2,7 +2,6 @@ package mx.edu.orderflow.notifications;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -12,7 +11,7 @@ class NotificationServiceTest {
 
     @ParameterizedTest(name = "rechaza orderId [{0}]")
     @NullAndEmptySource
-    @ValueSource(strings = {" ", "   "})
+    @ValueSource(strings = {" ", "\t", "\n"})
     void rejectsBlankOrderId(String orderId) {
         // Arrange
         var service = new NotificationService();
