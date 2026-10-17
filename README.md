@@ -61,7 +61,7 @@ curl http://localhost:8080/api/orders
 
 ## Calidad de código
 
-El repositorio incluye un workflow versionado en [`.github/workflows/calidad.yaml`](.github/workflows/calidad.yaml) que compila, corre pruebas unitarias y envía el análisis a SonarQube Cloud.
+El repositorio incluye un workflow versionado en [`.github/workflows/calidad.yml`](.github/workflows/calidad.yml) que compila, corre pruebas unitarias y envía el análisis a SonarQube Cloud.
 
 **Producto y proyecto:**
 - Producto: SonarQube Cloud.
