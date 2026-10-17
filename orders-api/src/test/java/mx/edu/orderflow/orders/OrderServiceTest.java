@@ -14,22 +14,22 @@ class OrderServiceTest {
     @Test
     void createsValidOrder() {
         // Arrange
-        var s = new OrderService();
+        var service = new OrderService();
         // Act
-        var o = s.create("student-1", new BigDecimal("150.00"));
+        var order = service.create("student-1", new BigDecimal("150.00"));
         // Assert
-        assertEquals(OrderStatus.CREATED, o.status());
-        assertEquals("student-1", o.customerId());
+        assertEquals(OrderStatus.CREATED, order.status());
+        assertEquals("student-1", order.customerId());
     }
 
 
     @Test
     void cancelsOrder() {
         // Arrange
-        var s = new OrderService();
-        var o = s.create("student-1", new BigDecimal("100.00"));
+        var service = new OrderService();
+        var order = service.create("student-1", new BigDecimal("100.00"));
         // Act
-        var canceledO = s.cancel(o.id());
+        var canceledO = service.cancel(order.id());
         // Assert
         assertEquals(OrderStatus.CANCELLED, canceledO.status());
     }
@@ -37,41 +37,41 @@ class OrderServiceTest {
     @Test
     void cancelThrowsWhenAlreadyCancelled() {
         // Arrange
-        var s = new OrderService();
-        var o = s.create("student-1", new BigDecimal("100.00"));
-        s.cancel(o.id());
+        var service = new OrderService();
+        var order = service.create("student-1", new BigDecimal("100.00"));
+        service.cancel(order.id());
         // Act y Assert
-        assertThrows(IllegalStateException.class, () -> s.cancel(o.id()));
+        assertThrows(IllegalStateException.class, () -> service.cancel(order.id()));
     }
 
     @Test
     void cancelThrowsWhenOrderNotFound() {
         // Arrange
-        var s = new OrderService();
+        var service = new OrderService();
         // Act y Assert
-        assertThrows(NoSuchElementException.class, () -> s.cancel(999L));
+        assertThrows(NoSuchElementException.class, () -> service.cancel(999L));
     }
 
     @Test
     void discountThrowsWhenOrderNotCreated() {
         // Arrange
-        var s = new OrderService();
-        var o = s.create("student-1", new BigDecimal("100.00"));
-        s.cancel(o.id());
+        var service = new OrderService();
+        var order = service.create("student-1", new BigDecimal("100.00"));
+        service.cancel(order.id());
         // Act y Assert
-        assertThrows(IllegalStateException.class, () -> s.applyDiscount(o.id(), "STUDENT10"));
+        assertThrows(IllegalStateException.class, () -> service.applyDiscount(order.id(), "STUDENT10"));
     }
 
     @Test
     void findByStatusReturnsMatchingOrders() {
         // Arrange
-        var s = new OrderService();
-        s.create("student-1", new BigDecimal("100.00"));
-        var cancelled = s.create("student-2", new BigDecimal("100.00"));
-        s.cancel(cancelled.id());
+        var service = new OrderService();
+        service.create("student-1", new BigDecimal("100.00"));
+        var cancelled = service.create("student-2", new BigDecimal("100.00"));
+        service.cancel(cancelled.id());
         // Act
-        var createdOrders = s.findByStatus(OrderStatus.CREATED);
-        var cancelledOrders = s.findByStatus(OrderStatus.CANCELLED);
+        var createdOrders = service.findByStatus(OrderStatus.CREATED);
+        var cancelledOrders = service.findByStatus(OrderStatus.CANCELLED);
         // Assert
         assertEquals(1, createdOrders.size());
         assertEquals(1, cancelledOrders.size());
@@ -80,9 +80,9 @@ class OrderServiceTest {
     @Test
     void findByStatusThrowsWhenStatusNull() {
         // Arrange
-        var s = new OrderService();
+        var service = new OrderService();
         // Act y Assert
-        assertThrows(IllegalArgumentException.class, () -> s.findByStatus(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByStatus(null));
     }
 
     @ParameterizedTest(name = "{0} sobre {1} -> {2}")
