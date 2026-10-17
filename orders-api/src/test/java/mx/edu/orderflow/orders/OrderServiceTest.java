@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
@@ -20,12 +20,6 @@ class OrderServiceTest {
         // Assert
         assertEquals(OrderStatus.CREATED, o.status());
         assertEquals("student-1", o.customerId());
-    }
-
-    @Test
-    void rejectsNegativeTotal() {
-        var s = new OrderService();
-        assertThrows(IllegalArgumentException.class, () -> s.create("student-1", new BigDecimal("-1")));
     }
 
 
@@ -155,5 +149,41 @@ class OrderServiceTest {
         var order = service.create("student-1", new BigDecimal("100.00"));
         // Act y Assert
         assertThrows(IllegalArgumentException.class, () -> service.applyDiscount(order.id(), couponCode));
+    }
+
+    @ParameterizedTest(name = "rechaza customerId [{0}]")
+    @NullAndEmptySource
+    @ValueSource(strings = {" ", "   "})
+    void rejectsInvalidCustomerId(String customerId) {
+        // Arrange
+        var service = new OrderService();
+        // Act y Assert
+        var ex = assertThrows(IllegalArgumentException.class,
+                () -> service.create(customerId, new BigDecimal("100.00")));
+        assertEquals("customerId required", ex.getMessage());
+    }
+
+    @ParameterizedTest(name = "rejects total [{0}]")
+    @NullSource
+    @ValueSource(strings = {"0", "0.00", "-0.01", "-1", "-100.00"})
+    void rejectsNonPositiveTotal(BigDecimal total) {
+        // Arrange
+        var service = new OrderService();
+        // Act y Assert
+        var ex = assertThrows(IllegalArgumentException.class, () -> service.create("student-1", total));
+        assertEquals("total must be positive", ex.getMessage());
+        assertTrue(service.list().isEmpty(), "a rejected order must not be stored");
+    }
+
+    @Test
+    void assignsSequentialIds() {
+        // Arrange
+        var service = new OrderService();
+        // Act
+        var first = service.create("student-1", new BigDecimal("10.00"));
+        var second = service.create("student-2", new BigDecimal("20.00"));
+        // Assert
+        assertEquals(1001L, first.id());
+        assertEquals(1002L, second.id());
     }
 }
