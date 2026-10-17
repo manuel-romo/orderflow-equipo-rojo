@@ -28,13 +28,9 @@ public class OrderService {
     public synchronized Optional<Order> find(long id) {
         return Optional.ofNullable(orders.get(id));
     }
-
+    
     private Order requireOrder(long id) {
-        Order o = orders.get(id);
-        if (o == null) {
-            throw new NoSuchElementException("order not found: " + id);
-        }
-        return o;
+        return find(id).orElseThrow(() -> new NoSuchElementException("order not found: " + id));
     }
 
     public synchronized Order cancel(long id) {
