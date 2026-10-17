@@ -104,7 +104,7 @@ class OrderServiceTest {
     @ParameterizedTest(name = "STUDENT30 sobre {0} -> {1}")
     @CsvSource({
             "50.00, 35.00",
-            "50.01, 35.007",
+            "50.01, 35.01",
             "51.00, 35.70",
             "60.00, 42.00"
     })

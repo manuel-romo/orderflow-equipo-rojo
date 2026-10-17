@@ -1,6 +1,7 @@
 package mx.edu.orderflow.orders;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -49,7 +50,7 @@ public class OrderService {
             throw new IllegalStateException("discounts only apply to CREATED orders");
         }
         BigDecimal rate = resolveDiscountRate(couponCode, o.total());
-        BigDecimal discounted = o.total().multiply(BigDecimal.ONE.subtract(rate));
+        BigDecimal discounted = o.total().multiply(BigDecimal.ONE.subtract(rate)).setScale(2, RoundingMode.HALF_UP);
         Order updated = new Order(o.id(), o.customerId(), discounted, o.status());
         orders.put(id, updated);
         return updated;
