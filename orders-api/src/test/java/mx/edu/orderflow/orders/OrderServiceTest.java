@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.NoSuchElementException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -21,6 +22,7 @@ class OrderServiceTest {
         // Assert
         assertEquals(OrderStatus.CREATED, order.status());
         assertEquals("student-1", order.customerId());
+        assertEquals(0, order.total().compareTo(new BigDecimal("150.00")));
     }
 
 
@@ -67,15 +69,15 @@ class OrderServiceTest {
     void findByStatusReturnsMatchingOrders() {
         // Arrange
         var service = new OrderService();
-        service.create("student-1", new BigDecimal("100.00"));
-        var cancelled = service.create("student-2", new BigDecimal("100.00"));
-        service.cancel(cancelled.id());
+        var created = service.create("student-1", new BigDecimal("100.00"));
+        var toCancel = service.create("student-2", new BigDecimal("100.00"));
+        var cancelled = service.cancel(toCancel.id());
         // Act
         var createdOrders = service.findByStatus(OrderStatus.CREATED);
         var cancelledOrders = service.findByStatus(OrderStatus.CANCELLED);
         // Assert
-        assertEquals(1, createdOrders.size());
-        assertEquals(1, cancelledOrders.size());
+        assertEquals(List.of(created), createdOrders);
+        assertEquals(List.of(cancelled), cancelledOrders);
     }
 
     @Test
