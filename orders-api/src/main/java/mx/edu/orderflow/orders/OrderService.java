@@ -62,7 +62,7 @@ public class OrderService {
         }
         String code = couponCode.trim().toUpperCase();
         if (code.equals("STUDENT10")) {
-            return new BigDecimal("0.10");
+            return new BigDecimal("0.15");
         }
         if (code.equals("STUDENT30")) {
             if (orderTotal.compareTo(STUDENT30_MIN_TOTAL) < 0) {
