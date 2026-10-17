@@ -36,6 +36,4 @@ class NotificationServiceTest {
         assertEquals(orderId, message.orderId());
         assertEquals(customerId, message.customerId());
     }
-
-
 }

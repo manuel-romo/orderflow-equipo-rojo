@@ -4,11 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.NoSuchElementException;
-
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.*;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class OrderServiceTest {
     @Test
@@ -29,9 +30,9 @@ class OrderServiceTest {
         var service = new OrderService();
         var order = service.create("student-1", new BigDecimal("100.00"));
         // Act
-        var canceledO = service.cancel(order.id());
+        var canceledOrder = service.cancel(order.id());
         // Assert
-        assertEquals(OrderStatus.CANCELLED, canceledO.status());
+        assertEquals(OrderStatus.CANCELLED, canceledOrder.status());
     }
 
     @Test
@@ -188,70 +189,70 @@ class OrderServiceTest {
     }
     
     @Test
-void findReturnsOrderWhenExists() {
-    // Arrange
-    var service = new OrderService();
-    var created = service.create("student-1", new BigDecimal("100.00"));
-    // Act
-    var found = service.find(created.id());
-    // Assert
-    assertTrue(found.isPresent());
-    assertEquals("student-1", found.get().customerId());
-}
+    void findReturnsOrderWhenExists() {
+        // Arrange
+        var service = new OrderService();
+        var created = service.create("student-1", new BigDecimal("100.00"));
+        // Act
+        var found = service.find(created.id());
+        // Assert
+        assertTrue(found.isPresent());
+        assertEquals("student-1", found.get().customerId());
+    }
 
-@Test
-void findReturnsEmptyWhenMissing() {
-    // Arrange
-    var service = new OrderService();
-    // Act
-    var found = service.find(999L);
-    // Assert
-    assertTrue(found.isEmpty());
-}
+    @Test
+    void findReturnsEmptyWhenMissing() {
+        // Arrange
+        var service = new OrderService();
+        // Act
+        var found = service.find(999L);
+        // Assert
+        assertTrue(found.isEmpty());
+    }
 
-@Test
-void listReturnsDefensiveCopy() {
-    // Arrange
-    var service = new OrderService();
-    service.create("student-1", new BigDecimal("100.00"));
-    var orders = service.list();
-    // Act
-    orders.clear();
-    // Assert
-    assertEquals(1, service.list().size());
-}
+    @Test
+    void listReturnsDefensiveCopy() {
+        // Arrange
+        var service = new OrderService();
+        service.create("student-1", new BigDecimal("100.00"));
+        var orders = service.list();
+        // Act
+        orders.clear();
+        // Assert
+        assertEquals(1, service.list().size());
+    }
 
-@Test
-void cancelPersistsCancelledOrderKeepingData() {
-    // Arrange
-    var service = new OrderService();
-    var order = service.create("student-1", new BigDecimal("100.00"));
-    // Act
-    service.cancel(order.id());
-    var stored = service.find(order.id()).orElseThrow();
-    // Assert
-    assertEquals(OrderStatus.CANCELLED, stored.status());
-    assertEquals(order.customerId(), stored.customerId());
-    assertEquals(order.total(), stored.total());
-}
+    @Test
+    void cancelPersistsCancelledOrderKeepingData() {
+        // Arrange
+        var service = new OrderService();
+        var order = service.create("student-1", new BigDecimal("100.00"));
+        // Act
+        service.cancel(order.id());
+        var stored = service.find(order.id()).orElseThrow();
+        // Assert
+        assertEquals(OrderStatus.CANCELLED, stored.status());
+        assertEquals(order.customerId(), stored.customerId());
+        assertEquals(order.total(), stored.total());
+    }
 
-@Test
-void discountThrowsWhenOrderNotFound() {
-    // Arrange
-    var service = new OrderService();
-    // Act y Assert
-    var ex = assertThrows(NoSuchElementException.class, () -> service.applyDiscount(999L, "STUDENT10"));
-    assertTrue(ex.getMessage().contains("999"));
-}
+    @Test
+    void discountThrowsWhenOrderNotFound() {
+        // Arrange
+        var service = new OrderService();
+        // Act y Assert
+        var ex = assertThrows(NoSuchElementException.class, () -> service.applyDiscount(999L, "STUDENT10"));
+        assertTrue(ex.getMessage().contains("999"));
+    }
 
-@Test
-void findByStatusReturnsEmptyWhenNoOrderMatches() {
-    // Arrange
-    var service = new OrderService();
-    service.create("student-1", new BigDecimal("100.00"));
-    // Act
-    var cancelled = service.findByStatus(OrderStatus.CANCELLED);
-    // Assert
-    assertTrue(cancelled.isEmpty());
-}
+    @Test
+    void findByStatusReturnsEmptyWhenNoOrderMatches() {
+        // Arrange
+        var service = new OrderService();
+        service.create("student-1", new BigDecimal("100.00"));
+        // Act
+        var cancelled = service.findByStatus(OrderStatus.CANCELLED);
+        // Assert
+        assertTrue(cancelled.isEmpty());
+    }
 }
