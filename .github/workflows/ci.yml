@@ -17,3 +17,5 @@ jobs:
           cache: 'maven'
       - name: Ejecutar pruebas
         run: mvn -B test
+      - name: Construir imagen Docker
+        run: docker build -t orderflow:${{ github.sha }} .  
