@@ -6,7 +6,3 @@ target/
 *.tfstate
 *.tfstate.*
 .terraform/
-**/target
-.git
-.github
-.idea
