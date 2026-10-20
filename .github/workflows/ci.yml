@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Pruebas unitarias
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Ejecutar pruebas
+        run: mvn -B test
+      - name: Construir imagen Docker de orders-api
+        run: docker build -t orders-api:${{ github.sha }} .
+      - name: Construir imagen Docker de notifications-lambda
+        run: docker build -f Dockerfile.notifications -t notifications-lambda:${{ github.sha }} .
