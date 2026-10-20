@@ -17,5 +17,7 @@ jobs:
           cache: 'maven'
       - name: Ejecutar pruebas
         run: mvn -B test
-      - name: Construir imagen Docker
-        run: docker build -t orderflow:${{ github.sha }} .  
+      - name: Construir imagen Docker de orders-api
+        run: docker build -t orders-api:${{ github.sha }} .
+      - name: Construir imagen Docker de notifications-lambda
+        run: docker build -f Dockerfile.notifications -t notifications-lambda:${{ github.sha }} .
