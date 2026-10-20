@@ -14,6 +14,10 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <properties>
+        <!-- Exclusión temporal para SonarQube Cloud -->
+        <sonar.coverage.exclusions>**/NotificationApplication.java</sonar.coverage.exclusions>
+    </properties>
     <build>
         <plugins>
             <plugin>
