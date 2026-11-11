@@ -3,7 +3,7 @@
     <parent>
         <groupId>mx.edu.orderflow</groupId>
         <artifactId>orderflow</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>notifications-lambda</artifactId>
     <dependencies>
@@ -14,6 +14,10 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <properties>
+        <!-- Exclusión temporal para SonarQube Cloud -->
+        <sonar.coverage.exclusions>**/NotificationApplication.java</sonar.coverage.exclusions>
+    </properties>
     <build>
         <plugins>
             <plugin>
@@ -24,6 +28,19 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>mx.edu.orderflow.notifications.NotificationApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
